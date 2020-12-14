@@ -19,7 +19,7 @@ server.get("/", (req, res) => res.json({ api: "up" }));
 server.use(errorHandler);
 
 function errorHandler(err, req, res, next) {
-  res.status(err.code).json({ errMessage: err.message });
+  res.status(err.code).json({ errCode: err.code, errMessage: err.message });
 }
 
 module.exports = server;

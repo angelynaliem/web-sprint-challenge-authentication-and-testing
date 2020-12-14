@@ -16,7 +16,7 @@ router.post("/register", async (req, res, next) => {
       credentials.password = hash;
 
       const user = await Users.add(credentials);
-      res.status(201).json({ data: user, token });
+      res.status(201).json({ data: user });
     } else {
       next({ errCode: 401, errMessage: "You are not authorized" });
     }
