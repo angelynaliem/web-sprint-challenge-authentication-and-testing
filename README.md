@@ -25,9 +25,16 @@ We will hash the user's password using `bcryptjs`, and use JSON Web Tokens and t
 Be prepared to demonstrate your understanding of this week's concepts by answering questions on the following topics.
 
 1. Differences between using _sessions_ or _JSON Web Tokens_ for authentication.
+   Sessions are server side and JSON Web Tokens are client side
+
 2. What does `bcryptjs` do to help us store passwords in a secure manner?
+   Bcryptjs gives us strong password security via a module that is able to do hashing + salting + scaling with computation power
+
 3. How are unit tests different from integration and end-to-end testing?
+   Unit test only tests a specific function whereas integration/end-to-end testing tests the whole user experience
+
 4. How does _Test Driven Development_ change the way we write applications and tests?
+   We start by writing the tests first to make sure they pass and then we write our code/we refactor.
 
 You are expected to be able to answer questions in these areas.
 
