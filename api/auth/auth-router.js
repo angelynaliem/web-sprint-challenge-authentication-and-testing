@@ -6,9 +6,26 @@ const router = require("express").Router();
 
 const Users = require("../../users/users-model.js");
 
-router.post("/register", async (req, res) => {
-  res.end("implement register, please!");
-  /*
+router.post("/register", async (req, res, next) => {
+  const credentials = req.body;
+
+  try {
+    if (credentials) {
+      const rounds = process.env.BCRYPT_ROUNDS;
+      const hash = bcryptjs.hashSync(credentials.password, rounds);
+      credentials.password = hash;
+
+      const user = await Users.add(credentials);
+      res.status(201).json({ data: user, token });
+    } else {
+      next({ errCode: 401, errMessage: "You are not authorized" });
+    }
+  } catch (err) {
+    console.log(err);
+    next({ errCode: 500, errMessage: "Error registering new user", ...err });
+  }
+});
+/*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
 
@@ -32,11 +49,28 @@ router.post("/register", async (req, res) => {
     4- On FAILED registration due to the `username` being taken,
       the response body should include a string exactly as follows: "username taken".
   */
-});
 
-router.post("/login", (req, res) => {
-  res.end("implement login, please!");
-  /*
+router.post("/login", async (req, res, next) => {
+  const { username, password } = req.body;
+
+  try {
+    if (!req.body) {
+      next({ errCode: 400, errMessage: "Missing username or password" });
+    } else {
+      const [user] = await Users.findBy({ username: username });
+      if (user && bcryptjs.compareSync(password, user.password)) {
+        const token = generateToken(user);
+        res.status(200).json({ message: "Welcome", token: token });
+      } else {
+        next({ errCode: 401, errMessage: "Invalid credentials" });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    next({ errCode: 500, errMessage: "Database error logging in", ...error });
+  }
+});
+/*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
 
@@ -59,6 +93,19 @@ router.post("/login", (req, res) => {
     4- On FAILED login due to `username` not existing in the db, or `password` being incorrect,
       the response body should include a string exactly as follows: "invalid credentials".
   */
-});
+function generateToken(user) {
+  const payload = {
+    userId: user.id,
+    username: user.username,
+  };
+
+  const options = {
+    expiresIn: "1d",
+  };
+
+  const token = jwt.sign(payload, secrets.jwtSecret, options);
+
+  return token;
+}
 
 module.exports = router;
