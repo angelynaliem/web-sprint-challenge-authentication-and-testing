@@ -1,5 +1,27 @@
+const jwt = require("jsonwebtoken");
+const secret = process.env.JWT_SECRET;
+
 module.exports = (req, res, next) => {
-  next();
+  try {
+    const token = req.headers.authorization
+      ? req.headers.authorization.split(" ")[1]
+      : "";
+
+    if (token) {
+      jwt.verify(token, secret, (err, decodedToken) => {
+        if (err) {
+          next({ errCode: 401, errMessage: "Invalid credentials" });
+        } else {
+          req.decodedToken = decodedToken;
+          next();
+        }
+      });
+    } else {
+      next({ errCode: 401, errMessage: "Invalid credentials" });
+    }
+  } catch (err) {
+    next({ errCode: 500, errMessage: "Server error validating credentials" });
+  }
   /*
     IMPLEMENT
 
